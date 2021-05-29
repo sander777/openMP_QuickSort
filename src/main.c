@@ -1,69 +1,85 @@
-/* C implementation QuickSort */
-#include <math.h>
 #include <omp.h>
 #include <stdio.h>
-#include <stdlib.h>
 
-#define ARRAY_MAX_SIZE 1000000
+#define MAXSIZE 100
+#define MAXWORKERS 12
 
-int arr[ARRAY_MAX_SIZE];
+int size = MAXSIZE;
+int vector[MAXSIZE];
+double start_time, end_time;
+int numWorkers;
 
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b;
-    *b = t;
-}
-
-int partition(int arr[], int low, int high) {
-    int pivot = arr[high];
-    int i = (low - 1);
-    for (int j = low; j <= high - 1; j++) {
-        if (arr[j] <= pivot) {
-            i++;
-            swap(&arr[i], &arr[j]);
+void Qsort(int first, int last) {
+    int pivot, i_pivot, temp, left, right;
+    if (first >= last)
+        return;
+    i_pivot = (first + last) / 2;
+    pivot = vector[i_pivot];
+    left = first;
+    right = last;
+    while (left <= right) {
+        if (vector[left] > pivot) {
+            temp = vector[left];
+            vector[left] = vector[right];
+            vector[right] = temp;
+            if (right == i_pivot) {
+                i_pivot = left;
+            }
+            right--;
+        } else {
+            left++;
         }
     }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
+    temp = vector[right];
+    vector[right] = pivot;
+    vector[i_pivot] = temp;
+#pragma omp task
+    Qsort(first, (right - 1));
+#pragma omp task
+    Qsort((right + 1), last);
 }
 
-void quickSort(int arr[], int low, int high) {
-    if (low < high) {
-        int pi = partition(arr, low, high);
-
-#pragma omp task firstprivate(arr, low, pi)
-        { quickSort(arr, low, pi - 1); }
-        { quickSort(arr, pi + 1, high); }
-    }
-}
-
-void printArray(int arr[], int size) {
+int main(int argc, char *argv[]) {
     int i;
+
+    size = (argc > 1) ? atoi(argv[1]) : MAXSIZE;
+    if (size <= 0 || size > MAXSIZE)
+        size = MAXSIZE;
+
+    numWorkers = (argc > 2) ? atoi(argv[2]) : MAXWORKERS;
+    if (numWorkers > MAXWORKERS)
+        numWorkers = MAXWORKERS;
+
+    omp_set_num_threads(numWorkers);
+
     for (i = 0; i < size; i++)
-        printf("%d ", arr[i]);
+        vector[i] = (int)random() % MAXSIZE;
+#ifdef DEBUG
+    printf("initial vector: \n");
+    for (i = 0; i < size; i++)
+        printf(" %3d", vector[i]);
     printf("\n");
-}
+#endif
 
-int main() {
-
-    double start_time, run_time;
-    for (int i = 0; i < ARRAY_MAX_SIZE - 1; i++) {
-        arr[i] = rand() % 50 + 1;
-    }
-    int n = sizeof(arr) / sizeof(arr[0]);
-    omp_set_num_threads(12);
     start_time = omp_get_wtime();
+
 #pragma omp parallel
     {
-
-        int id = omp_get_thread_num();
-        int nthrds = omp_get_num_threads();
-#pragma omp single nowait
-
-        quickSort(arr, 0, n - 1);
+#pragma omp single
+        Qsort(0, (size - 1));
     }
-    run_time = omp_get_wtime() - start_time;
-    printf("\n Execution time was %lf seconds\n ", run_time);
+
+    end_time = omp_get_wtime();
+    for (i = 0; i < size - 1; i++)
+        if (vector[i] > vector[i + 1]) {
+            printf("The resulting vector is not sorted!\n");
+        }
+#ifdef DEBUG
+    printf("sorted vector: \n");
+    for (i = 0; i < size; i++)
+        printf(" %3d", vector[i]);
     printf("\n");
-    return 0;
+#endif
+
+    printf("It took %g seconds\n", (end_time - start_time));
 }

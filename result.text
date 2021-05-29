@@ -1,0 +1,54 @@
+Bat dau quicksort mang 3
+  Su dung 2 Thread 
+
+Thoi gian chay song song 0.000226 time 
+
+Thoi gian QuickSort 0.000006 seconds 
+
+	===================================================	
+
+Bat dau quicksort mang 3
+  Su dung 4 Thread 
+
+Thoi gian chay song song 0.000272 time 
+
+Thoi gian QuickSort 0.000004 seconds 
+
+	===================================================	
+
+Bat dau quicksort mang 3
+  Su dung 6 Thread 
+
+Thoi gian chay song song 0.000248 time 
+
+Thoi gian QuickSort 0.000004 seconds 
+
+	===================================================	
+
+Bat dau quicksort mang 3
+  Su dung 8 Thread 
+
+Thoi gian chay song song 0.000303 time 
+
+Thoi gian QuickSort 0.000005 seconds 
+
+	===================================================	
+
+Bat dau quicksort mang 3
+  Su dung 10 Thread 
+
+Thoi gian chay song song 0.001934 time 
+
+Thoi gian QuickSort 0.000006 seconds 
+
+	===================================================	
+
+Bat dau quicksort mang 3
+  Su dung 12 Thread 
+
+Thoi gian chay song song 0.022063 time 
+
+Thoi gian QuickSort 0.000001 seconds 
+
+	===================================================	
+
